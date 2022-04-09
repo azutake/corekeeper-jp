@@ -4,7 +4,7 @@
 # リリース [![](https://img.shields.io/github/downloads/azutake/corekeeper-jp/total.svg)](../../releases)
 [![](https://img.shields.io/github/release/azutake/corekeeper-jp.svg?label=version)](../../releases/latest)
 
-[リリース](../releases) から最新バージョンのMODをダウンロード可能です  
+[リリース](../../releases) から最新バージョンのMODをダウンロード可能です  
 2種類用意しています。
 * ckjp-all.zip
   - MODローダ(BepInEx IL2CPP)を含めた、初回導入向けの圧縮ファイルです。導入方法は、 [初回利用者向け](#初回利用者向け) をご覧ください
@@ -44,6 +44,10 @@ Core Keeperインストールフォルダ内の `BepInEx` 内にある `config` 
   - 解決するには手製のフォントジェネレータを改修する必要があるため、先延ばしにしています。後々修正予定です
 * `F8` キーで翻訳再読み込みをするとゲームの挙動がおかしくなる時がある
   - 原因不明のため修正の目途なし。原因が分かったら修正するかもしれません
+
+# 配信等での使用、その他再頒布等
+* どこで使用していただいてもかまいません。
+* MITライセンスで配布している通り、著者名を書いていただければ改造、再配布は自由です。軽微な修正などであれば、派生版を作るのでなくプルリクを飛ばしてもらえるととても喜びます。
 
 # このMODを作成するにあたって使用したリソース
 * [BepInEx IL2CPP](https://github.com/BepInEx/BepInEx)
