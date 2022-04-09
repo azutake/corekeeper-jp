@@ -17,11 +17,13 @@ namespace ckjp
 	{
 		private static ConfigEntry<bool> _isForceJapanese;
 		private static ConfigEntry<int> _waitTime;
+		private static ConfigEntry<bool> _isIgnoreItemName;
 
 		internal static void Setup()
 		{
 			_isForceJapanese = BepInExLoader.Inst.Config.Bind("General", "ForceLanguageToJapanese", true, "言語を強制的に日本語にする");
 			_waitTime = BepInExLoader.Inst.Config.Bind("General", "PatchJapaneseWaitFrame", 300, "早すぎるとゲーム自体の読み込みと競合するため起動してから指定したフレーム数待機してから日本語を適用する");
+			_isIgnoreItemName = BepInExLoader.Inst.Config.Bind("General", "IsIgnoreItemName", false, "アイテム名を日本語化しないようにします。変更後の適用にはゲームの再起動が必要です");
 			BepInExLoader.Inst.Log.LogMessage("Japanese Patcher Injected.");
 			ClassInjector.RegisterTypeInIl2Cpp<JapanesePatcher>();
 
@@ -131,6 +133,9 @@ namespace ckjp
 					continue;
 
 				if (string.IsNullOrWhiteSpace(japaneses[term.Term]))
+					continue;
+
+				if (_isIgnoreItemName.Value && term.Term.StartsWith("Items/") && !term.Term.EndsWith("Desc"))
 					continue;
 
 				term.Languages[jaLangIndex] = japaneses[term.Term];
