@@ -4,7 +4,7 @@
 # リリース [![](https://img.shields.io/github/downloads/azutake/corekeeper-jp/total.svg)](../../releases)
 [![](https://img.shields.io/github/release/azutake/corekeeper-jp.svg?label=version)](../../releases/latest)
 
-[リリース](../releases) から最新バージョンのMODをダウンロード可能です  
+[リリース](../../releases) から最新バージョンのMODをダウンロード可能です  
 2種類用意しています。
 * ckjp-all.zip
   - MODローダ(BepInEx IL2CPP)を含めた、初回導入向けの圧縮ファイルです。導入方法は、 [初回利用者向け](#初回利用者向け) をご覧ください
