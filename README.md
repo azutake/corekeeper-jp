@@ -49,6 +49,17 @@ Core Keeperインストールフォルダ内の `BepInEx` 内にある `config` 
 * どこで使用していただいてもかまいません。
 * MITライセンスで配布している通り、著者名を書いていただければ改造、再配布は自由です。軽微な修正などであれば、派生版を作るのでなくプルリクを飛ばしてもらえるととても喜びます。
 
+# トラブルシューティング
+MODをインストールしてみたが、ゲームが起動しなくなってしまった方向けに、トラブルシューティング用のファイルを配布しています。  
+[こちら](troubleshooting/trouble-solver.zip) をダウンロードし、BepInExフォルダ内に展開してみてください。
+
+そうすると、以下の画像のようになっているはずです。  
+![SS](img/explorer_PIi30nBg7G.png)
+
+この時、 `unhollowed` フォルダ、 `unity-libs` フォルダの中身が空でないことを確認してください。  
+この状態でゲームを起動すれば問題なく起動すると思います。もし起動しない場合、TwitterID @azutake_dev まで問い合わせください。  
+出来る限り全力で対応しますので、ぜひともご連絡ください！
+
 # このMODを作成するにあたって使用したリソース
 * [BepInEx IL2CPP](https://github.com/BepInEx/BepInEx)
 * [PixelMplus](https://itouhiro.hatenablog.com/entry/20130602/font)
