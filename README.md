@@ -51,7 +51,9 @@ Core Keeperインストールフォルダ内の `BepInEx` 内にある `config` 
 
 # トラブルシューティング
 MODをインストールしてみたが、ゲームが起動しなくなってしまった方向けに、トラブルシューティング用のファイルを配布しています。  
-[こちら](troubleshooting/trouble-solver.zip) をダウンロードし、BepInExフォルダ内に展開してみてください。
+[こちら](troubleshooting/trouble-solver.zip) から `[Download]` を押して、BepInExフォルダ内に解凍してみてください。
+
+![SS](img/chrome_K5ZuYSIKrX.png)
 
 そうすると、以下の画像のようになっているはずです。  
 ![SS](img/explorer_PIi30nBg7G.png)
