@@ -25,6 +25,12 @@ namespace ckjp
 			obj.hideFlags |= HideFlags.HideAndDontSave;
 
 			Instance = obj.AddComponent<Bootstrapper>();
+
+			var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+
+			var origInit = AccessTools.Method(typeof(TextManager), nameof(TextManager.Init));
+			var postInit = AccessTools.Method(typeof(JapanesePatcher), nameof(JapanesePatcher.FontPatch));
+			harmony.Patch(origInit, postfix: new HarmonyMethod(postInit));
 		}
 
 		internal void Start()
@@ -42,6 +48,7 @@ namespace ckjp
 					return;
 				ForcePatching = true;
 				Start();
+				ForcePatching = false;
 			}
 		}
 	}

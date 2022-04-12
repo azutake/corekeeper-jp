@@ -15,14 +15,10 @@ namespace ckjp
 {
 	public class JapanesePatcher : MonoBehaviour
 	{
-		private static ConfigEntry<bool> _isForceJapanese;
-		private static ConfigEntry<int> _waitTime;
 		private static ConfigEntry<bool> _isIgnoreItemName;
 
 		internal static void Setup()
 		{
-			_isForceJapanese = BepInExLoader.Inst.Config.Bind("General", "ForceLanguageToJapanese", true, "言語を強制的に日本語にする");
-			_waitTime = BepInExLoader.Inst.Config.Bind("General", "PatchJapaneseWaitFrame", 300, "早すぎるとゲーム自体の読み込みと競合するため起動してから指定したフレーム数待機してから日本語を適用する");
 			_isIgnoreItemName = BepInExLoader.Inst.Config.Bind("General", "IsIgnoreItemName", false, "アイテム名を日本語化しないようにします。変更後の適用にはゲームの再起動が必要です");
 			BepInExLoader.Inst.Log.LogMessage("Japanese Patcher Injected.");
 			ClassInjector.RegisterTypeInIl2Cpp<JapanesePatcher>();
@@ -38,7 +34,7 @@ namespace ckjp
 		{
 			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Japanese patching... <<<<<<<<<<<");
 
-			var request = WebRequest.Create("https://docs.google.com/spreadsheets/d/1csBM-ZqZtG_z_JdLaFvGHHy8UABZdxRRdT_ShJM5zTE/export?format=tsv");
+			var request = WebRequest.Create("https://docs.google.com/spreadsheets/d/1csBM-ZqZtG_z_JdLaFvGHHy8UABZdxRRdT_ShJM5zTE/export?gid=0&format=tsv");
 			request.Method = "Get";
 			WebResponse response;
 			BepInExLoader.Inst.Log.LogMessage("Downloading...");
@@ -73,53 +69,8 @@ namespace ckjp
 			st.Close();
 
 			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Waiting for localization manager <<<<<<<<<<<");
-		}
-
-		private int? _detectedFrameCount;
-
-		private static byte[] ReadFully(System.IO.Stream input)
-		{
-			using var ms = new System.IO.MemoryStream();
-			byte[] buffer = new byte[81920];
-			int read;
-			while ((read = input.Read(buffer, 0, buffer.Length)) != 0)
-				ms.Write(buffer, 0, read);
-			return ms.ToArray();
-		}
-
-		internal void Update()
-		{
-
-
-			if (LocalizationManager.Sources.Count == 0)
-				return;
-
-			if (_detectedFrameCount == null)
-			{
-				BepInExLoader.Inst.Log.LogMessage(">>>>>>> localization manager incoming <<<<<<<<<<<");
-
-				if (!Bootstrapper.Instance.ForcePatching)
-				{
-					byte[] bytes;
-					var texture = new Texture2D(2, 2);
-					var asm = Assembly.GetExecutingAssembly();
-					
-					using (var stream = typeof(BepInExLoader).Assembly.GetManifestResourceStream($"ckjp.Resources.outfile.png"))
-						bytes = ReadFully(stream);
-					texture.LoadImage(bytes);
-
-					var manager = GameObject.Find("Text Manager").GetComponent<TextManager>();
-					JapaneseFontPatch.Patch(manager, texture);
-				}
-
-				_detectedFrameCount = Time.frameCount;
-				return;
-			}
-
-			if (_detectedFrameCount + _waitTime.Value > Time.frameCount)
-				return;
-
-			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Wait complete, patching... <<<<<<<<<<<");
+			if (I2.Loc.LocalizationManager.Sources.Count == 0)
+				I2.Loc.LocalizationManager.UpdateSources();
 
 			var pred = delegate (I2.Loc.LanguageData x) { return x.Code == "ja"; };
 			var jaLang = I2.Loc.LocalizationManager.Sources[0].mLanguages.Find(pred);
@@ -138,14 +89,14 @@ namespace ckjp
 				if (_isIgnoreItemName.Value && term.Term.StartsWith("Items/") && !term.Term.EndsWith("Desc"))
 					continue;
 
-				term.Languages[jaLangIndex] = japaneses[term.Term];
+				term.SetTranslation(jaLangIndex, japaneses[term.Term]);
 			}
-			
-			jaLang.Flags = 0;
 
-			if (_isForceJapanese.Value)
+			jaLang.Flags = 0;
+			I2.Loc.LocalizationManager.Sources[0].UpdateDictionary();
+
+			if (!Bootstrapper.Instance.ForcePatching)
 			{
-				I2.Loc.LocalizationManager.CurrentLanguage = "japanese";
 				var texts = FindObjectsOfType<PugText>();
 				foreach (var text in texts)
 				{
@@ -154,9 +105,33 @@ namespace ckjp
 				}
 			}
 
-			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Finished japanese patch. <<<<<<<<<<<");
-			Bootstrapper.Instance.ForcePatching = false;
 			Destroy(gameObject);
+		}
+
+		private static byte[] ReadFully(System.IO.Stream input)
+		{
+			using var ms = new System.IO.MemoryStream();
+			byte[] buffer = new byte[81920];
+			int read;
+			while ((read = input.Read(buffer, 0, buffer.Length)) != 0)
+				ms.Write(buffer, 0, read);
+			return ms.ToArray();
+		}
+
+		internal static void FontPatch(TextManager __instance)
+		{
+			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Font patching... <<<<<<<<<<<");
+
+			byte[] bytes;
+			var texture = new Texture2D(2, 2);
+			var asm = Assembly.GetExecutingAssembly();
+
+			using (var stream = typeof(BepInExLoader).Assembly.GetManifestResourceStream($"ckjp.Resources.outfile.png"))
+				bytes = ReadFully(stream);
+			texture.LoadImage(bytes);
+
+			var manager = GameObject.Find("Text Manager").GetComponent<TextManager>();
+			JapaneseFontPatch.Patch(manager, texture);
 		}
 	}
 }
