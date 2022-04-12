@@ -29,7 +29,7 @@
 3.  `ckjp-all.zip` をインストールフォルダ内に解凍します。 **Core Keeperフォルダ内にさらにフォルダを作らないように注意してください。例えば、`Core Keeper` フォルダ内に `ckjp-all` フォルダが作られて、その中に解凍されている場合、正しくありません。以下の画像と同じになるようにしてください**  
 ![SS](img/explorer_7tgBzy59mR.png)
 4. ゲームを起動します。 **初回起動には１～２分ほど時間がかかります**
-5. ゲームが起動し、日本語化されていれば完了です
+5. ゲームが起動したら、 `SETTINGS` を閲覧し、 `LANGUAGES` を何度かクリックしてみてください。日本語の項目が出現するはずです。
 
 # 設定
 [BepInEx ConfigManager](https://github.com/sinai-dev/BepInExConfigManager) を別途利用することでゲーム内から `F5` キーで設定画面を開くことが出来ます  
