@@ -15,10 +15,12 @@ namespace ckjp
 {
 	public class JapanesePatcher : MonoBehaviour
 	{
+		private static ConfigEntry<bool> _isFirstRun;
 		private static ConfigEntry<bool> _isIgnoreItemName;
 
 		internal static void Setup()
 		{
+			_isFirstRun = BepInExLoader.Inst.Config.Bind("General", "IsFirstRun", true, "初回起動を認識するためのオプションです。有効(true)にすると１回だけ強制的に日本語に切り替わります");
 			_isIgnoreItemName = BepInExLoader.Inst.Config.Bind("General", "IsIgnoreItemName", false, "アイテム名を日本語化しないようにします。変更後の適用にはゲームの再起動が必要です");
 			BepInExLoader.Inst.Log.LogMessage("Japanese Patcher Injected.");
 			ClassInjector.RegisterTypeInIl2Cpp<JapanesePatcher>();
@@ -68,7 +70,6 @@ namespace ckjp
 			sr.Close();
 			st.Close();
 
-			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Waiting for localization manager <<<<<<<<<<<");
 			if (I2.Loc.LocalizationManager.Sources.Count == 0)
 				I2.Loc.LocalizationManager.UpdateSources();
 
@@ -95,7 +96,15 @@ namespace ckjp
 			jaLang.Flags = 0;
 			I2.Loc.LocalizationManager.Sources[0].UpdateDictionary();
 
-			if (!Bootstrapper.Instance.ForcePatching)
+			if (_isFirstRun.Value)
+			{
+				BepInExLoader.Inst.Log.LogMessage(">>>>>>> 初回起動のため強制的に日本語にします <<<<<<<<<<<");
+				_isFirstRun.SetSerializedValue(false.ToString());
+				I2.Loc.LocalizationManager.CurrentLanguage = "japanese";
+				Bootstrapper.Instance.ForcePatching = true;
+			}
+
+			if (Bootstrapper.Instance.ForcePatching)
 			{
 				var texts = FindObjectsOfType<PugText>();
 				foreach (var text in texts)
@@ -103,8 +112,10 @@ namespace ckjp
 					if (text.localize)
 						text.Render(false);
 				}
+				Bootstrapper.Instance.ForcePatching = false;
 			}
 
+			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Finished japanese patch <<<<<<<<<<<");
 			Destroy(gameObject);
 		}
 

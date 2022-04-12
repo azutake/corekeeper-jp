@@ -48,7 +48,6 @@ namespace ckjp
 					return;
 				ForcePatching = true;
 				Start();
-				ForcePatching = false;
 			}
 		}
 	}
