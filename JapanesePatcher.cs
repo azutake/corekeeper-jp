@@ -17,11 +17,13 @@ namespace ckjp
 	{
 		private static ConfigEntry<bool> _isFirstRun;
 		private static ConfigEntry<bool> _isIgnoreItemName;
+		private static ConfigEntry<string> _sheetFileUrl;
 
 		internal static void Setup()
 		{
 			_isFirstRun = BepInExLoader.Inst.Config.Bind("General", "IsFirstRun", true, "初回起動を認識するためのオプションです。有効(true)にすると１回だけ強制的に日本語に切り替わります");
 			_isIgnoreItemName = BepInExLoader.Inst.Config.Bind("General", "IsIgnoreItemName", false, "アイテム名を日本語化しないようにします。変更後の適用にはゲームの再起動が必要です");
+			_sheetFileUrl = BepInExLoader.Inst.Config.Bind("General", "SheetFileUrl", "https://docs.google.com/spreadsheets/d/1csBM-ZqZtG_z_JdLaFvGHHy8UABZdxRRdT_ShJM5zTE/export?gid=0&format=tsv", "翻訳に使用するシートを指定します。tsvフォーマットである必要があります");
 			BepInExLoader.Inst.Log.LogMessage("Japanese Patcher Injected.");
 			ClassInjector.RegisterTypeInIl2Cpp<JapanesePatcher>();
 
@@ -36,7 +38,7 @@ namespace ckjp
 		{
 			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Japanese patching... <<<<<<<<<<<");
 
-			var request = WebRequest.Create("https://docs.google.com/spreadsheets/d/1csBM-ZqZtG_z_JdLaFvGHHy8UABZdxRRdT_ShJM5zTE/export?gid=0&format=tsv");
+			var request = WebRequest.Create(_sheetFileUrl.Value);
 			request.Method = "Get";
 			WebResponse response;
 			BepInExLoader.Inst.Log.LogMessage("Downloading...");
@@ -70,8 +72,8 @@ namespace ckjp
 			sr.Close();
 			st.Close();
 
-			if (I2.Loc.LocalizationManager.Sources.Count == 0)
-				I2.Loc.LocalizationManager.UpdateSources();
+			if (LocalizationManager.Sources.Count == 0)
+				LocalizationManager.UpdateSources();
 
 			var pred = delegate (I2.Loc.LanguageData x) { return x.Code == "ja"; };
 			var jaLang = I2.Loc.LocalizationManager.Sources[0].mLanguages.Find(pred);
@@ -91,6 +93,17 @@ namespace ckjp
 					continue;
 
 				term.SetTranslation(jaLangIndex, japaneses[term.Term]);
+			}
+
+			if (_isIgnoreItemName.Value)
+			{
+				foreach (var term in I2.Loc.LocalizationManager.Sources[0].mTerms)
+				{
+					if (!(term.Term.StartsWith("Items/") && !term.Term.EndsWith("Desc")))
+						continue;
+
+					term.SetTranslation(jaLangIndex, "");
+				}
 			}
 
 			jaLang.Flags = 0;
@@ -127,22 +140,6 @@ namespace ckjp
 			while ((read = input.Read(buffer, 0, buffer.Length)) != 0)
 				ms.Write(buffer, 0, read);
 			return ms.ToArray();
-		}
-
-		internal static void FontPatch(TextManager __instance)
-		{
-			BepInExLoader.Inst.Log.LogMessage(">>>>>>> Font patching... <<<<<<<<<<<");
-
-			byte[] bytes;
-			var texture = new Texture2D(2, 2);
-			var asm = Assembly.GetExecutingAssembly();
-
-			using (var stream = typeof(BepInExLoader).Assembly.GetManifestResourceStream($"ckjp.Resources.outfile.png"))
-				bytes = ReadFully(stream);
-			texture.LoadImage(bytes);
-
-			var manager = GameObject.Find("Text Manager").GetComponent<TextManager>();
-			JapaneseFontPatch.Patch(manager, texture);
 		}
 	}
 }
